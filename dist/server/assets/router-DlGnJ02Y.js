@@ -4,7 +4,7 @@ import { HeadContent, Link, Outlet, Scripts, createFileRoute, createRootRouteWit
 import { jsx, jsxs } from "react/jsx-runtime";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 // src/styles.css?url
-var styles_default = "/assets/styles-BdaTGh_z.css";
+var styles_default = "/assets/styles-C56tGL-3.css";
 // src/lib/lovable-error-reporting.ts
 function reportLovableError(error, context = {}) {
 	if (typeof window === "undefined") return;
@@ -209,7 +209,7 @@ var siteConfig = {
 	location: "Remote · Worldwide"
 };
 // src/routes/index.tsx
-var $$splitComponentImporter = () => import("./routes-BLwNEYM5.js");
+var $$splitComponentImporter = () => import("./routes-D3CMObin.js");
 var title = `${siteConfig.name} — Websites, Apps & Custom Software`;
 // src/routeTree.gen.ts
 var rootRouteChildren = { IndexRoute: createFileRoute("/")({

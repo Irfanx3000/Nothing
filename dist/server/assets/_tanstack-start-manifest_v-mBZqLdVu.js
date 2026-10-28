@@ -3,17 +3,17 @@ var tsrStartManifest = () => ({ routes: {
 	__root__: {
 		filePath: "C:/Users/Shaikh Farhan/OneDrive/Desktop/Business/src/routes/__root.tsx",
 		children: ["/"],
-		preloads: ["/assets/index-v830sP8j.js"],
+		preloads: ["/assets/index-CmodTpnw.js"],
 		scripts: [{ attrs: {
 			type: "module",
 			async: !0,
-			src: "/assets/index-v830sP8j.js"
+			src: "/assets/index-CmodTpnw.js"
 		} }]
 	},
 	"/": {
 		filePath: "C:/Users/Shaikh Farhan/OneDrive/Desktop/Business/src/routes/index.tsx",
 		children: void 0,
-		preloads: ["/assets/routes-DZJtBpoO.js"]
+		preloads: ["/assets/routes-BWKasUZl.js"]
 	}
 } });
 export { tsrStartManifest };

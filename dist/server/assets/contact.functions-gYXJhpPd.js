@@ -1,4 +1,4 @@
-import { a as TSS_SERVER_FUNCTION, i as createServerFn } from "./server-COr1DB0t.js";
+import { a as TSS_SERVER_FUNCTION, i as createServerFn } from "./server-CnGYgseA.js";
 import { n as contactSchema } from "./validation-BwYvtDrt.js";
 // node_modules/@tanstack/start-server-core/dist/esm/createServerRpc.js
 var createServerRpc = (serverFnMeta, splitImportFn) => {

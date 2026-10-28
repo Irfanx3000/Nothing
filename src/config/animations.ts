@@ -5,10 +5,9 @@ export const animationConfig = {
   revealDistance: 40,
   // Media queries used with gsap.matchMedia
   // Must match the `hscroll` variant in styles.css (CSS and JS switch modes together)
-  desktop: "(min-width: 1024px) and (min-height: 500px) and (prefers-reduced-motion: no-preference)",
+  // Below 450px tall (landscape phones) a card + navbar cannot fit, so the track stays a swipe row
+  hscroll: "(min-height: 450px) and (prefers-reduced-motion: no-preference)",
   motion: "(prefers-reduced-motion: no-preference)",
-  // Service panels stack (sticky); must match the `stack` variant in styles.css
-  stack: "(min-width: 1024px) and (min-height: 500px)",
   // Start/end of the band where a section becomes "active" for backgrounds
   themeStart: "top 55%",
   themeEnd: "bottom 55%",

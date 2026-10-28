@@ -7,6 +7,8 @@ let registered = false;
 export function getGsap() {
   if (!registered && typeof window !== "undefined") {
     gsap.registerPlugin(ScrollTrigger);
+    // Mobile address bar show/hide resizes the viewport; do not re-measure pins mid-scroll for it
+    ScrollTrigger.config({ ignoreMobileResize: true });
     registered = true;
   }
   return { gsap, ScrollTrigger };
@@ -37,6 +39,42 @@ export function revealLines(scope: Element, opts: { delay?: number; scroll?: boo
     stagger: animationConfig.stagger * 1.5,
     delay: opts.delay ?? 0,
     ...(opts.scroll ? { scrollTrigger: { trigger: scope, start: "top 80%", once: true } } : {}),
+  });
+}
+
+/**
+ * Sticky stacked panels (Services, Projects on mobile): a panel taller than the space below
+ * its sticky point would have its bottom trapped under the next panel, so lift its sticky
+ * point to keep the bottom on screen. Re-runs before every ScrollTrigger refresh
+ * (resize, rotation, font/image load). Returns a cleanup.
+ */
+export function fitStickyPanels(panels: HTMLElement[]) {
+  const fit = () => panels.forEach((p) => {
+    p.style.top = "";
+    const top = parseFloat(getComputedStyle(p).top);
+    const over = top + p.offsetHeight + 16 - window.innerHeight;
+    if (over > 0) p.style.top = `${top - over}px`;
+  });
+  fit();
+  ScrollTrigger.addEventListener("refreshInit", fit);
+  return () => {
+    ScrollTrigger.removeEventListener("refreshInit", fit);
+    panels.forEach((p) => (p.style.top = ""));
+  };
+}
+
+/** Slightly shrink each sticky panel as the next one slides up over it. */
+export function shrinkCoveredPanels(panels: HTMLElement[]) {
+  panels.slice(0, -1).forEach((panel, i) => {
+    const next = panels[i + 1]!;
+    gsap.to(panel, {
+      scale: 0.95, ease: "none",
+      scrollTrigger: {
+        trigger: next, scrub: true, invalidateOnRefresh: true,
+        start: "top bottom",
+        end: () => `top ${parseFloat(getComputedStyle(next).top)}px`,
+      },
+    });
   });
 }
 

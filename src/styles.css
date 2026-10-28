@@ -3,10 +3,10 @@
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
-/* Pinned horizontal project scroll. Must match animationConfig.desktop. */
-/* Sticky stacked service panels. Must match animationConfig.stack. */
+/* Pinned horizontal project scroll, all widths. Must match animationConfig.hscroll. */
+/* Fixed-height side-by-side service panels (they stack at every size). */
 @custom-variant stack (@media (min-width: 1024px) and (min-height: 500px));
-@custom-variant hscroll (@media (min-width: 1024px) and (min-height: 500px) and (prefers-reduced-motion: no-preference));
+@custom-variant hscroll (@media (min-height: 450px) and (prefers-reduced-motion: no-preference));
 
 /*
  * Design tokens. Palette: warm cream, charcoal, muted green, terracotta accent.

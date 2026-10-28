@@ -1,6 +1,6 @@
-import { a as TSS_SERVER_FUNCTION, i as createServerFn, o as getServerFnById } from "./server-COr1DB0t.js";
+import { a as TSS_SERVER_FUNCTION, i as createServerFn, o as getServerFnById } from "./server-CnGYgseA.js";
 import { i as timelineOptions, n as contactSchema, r as serviceOptions, t as budgetOptions } from "./validation-BwYvtDrt.js";
-import { n as siteConfig } from "./router-BpHagpyL.js";
+import { n as siteConfig } from "./router-DlGnJ02Y.js";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Fragment, jsx, jsxs } from "react/jsx-runtime";
 import { ArrowDown, ArrowUpRight, CheckCircle2, Loader2, Mail, Menu, MessageCircle, X } from "lucide-react";
@@ -318,9 +318,8 @@ var animationConfig = {
 	duration: 1,
 	stagger: .08,
 	revealDistance: 40,
-	desktop: "(min-width: 1024px) and (min-height: 500px) and (prefers-reduced-motion: no-preference)",
+	hscroll: "(min-height: 450px) and (prefers-reduced-motion: no-preference)",
 	motion: "(prefers-reduced-motion: no-preference)",
-	stack: "(min-width: 1024px) and (min-height: 500px)",
 	themeStart: "top 55%",
 	themeEnd: "bottom 55%"
 };
@@ -330,6 +329,7 @@ var registered = false;
 function getGsap() {
 	if (!registered && typeof window !== "undefined") {
 		gsap.registerPlugin(ScrollTrigger);
+		ScrollTrigger.config({ ignoreMobileResize: true });
 		registered = true;
 	}
 	return {
@@ -368,6 +368,43 @@ function revealLines(scope, opts = {}) {
 			start: "top 80%",
 			once: true
 		} } : {}
+	});
+}
+/**
+* Sticky stacked panels (Services, Projects on mobile): a panel taller than the space below
+* its sticky point would have its bottom trapped under the next panel, so lift its sticky
+* point to keep the bottom on screen. Re-runs before every ScrollTrigger refresh
+* (resize, rotation, font/image load). Returns a cleanup.
+*/
+function fitStickyPanels(panels) {
+	const fit = () => panels.forEach((p) => {
+		p.style.top = "";
+		const top = parseFloat(getComputedStyle(p).top);
+		const over = top + p.offsetHeight + 16 - window.innerHeight;
+		if (over > 0) p.style.top = `${top - over}px`;
+	});
+	fit();
+	ScrollTrigger.addEventListener("refreshInit", fit);
+	return () => {
+		ScrollTrigger.removeEventListener("refreshInit", fit);
+		panels.forEach((p) => p.style.top = "");
+	};
+}
+/** Slightly shrink each sticky panel as the next one slides up over it. */
+function shrinkCoveredPanels(panels) {
+	panels.slice(0, -1).forEach((panel, i) => {
+		const next = panels[i + 1];
+		gsap.to(panel, {
+			scale: .95,
+			ease: "none",
+			scrollTrigger: {
+				trigger: next,
+				scrub: true,
+				invalidateOnRefresh: true,
+				start: "top bottom",
+				end: () => `top ${parseFloat(getComputedStyle(next).top)}px`
+			}
+		});
 	});
 }
 // src/hooks/useGsapScope.ts
@@ -478,8 +515,8 @@ function HeroSection() {
 				stagger: .1,
 				scrollTrigger: {
 					trigger: statementEl,
-					start: "top 85%",
-					end: "bottom 50%",
+					start: "clamp(top 85%)",
+					end: "clamp(bottom 50%)",
 					scrub: .4
 				}
 			});
@@ -597,72 +634,100 @@ function SectionHeading({ index, eyebrow, title, id }) {
 }
 // src/components/projects/ProjectCard.tsx
 function ProjectCard({ project, index }) {
+	const number = String(index + 1).padStart(2, "0");
 	return /* @__PURE__ */ jsxs("article", {
-		className: "@container group flex w-[82vw] max-w-[44rem] shrink-0 snap-center flex-col gap-5 sm:w-[64vw] hscroll:w-[min(50vw,calc((100svh_-_17.5rem)_*_1.6))] hscroll:max-w-none hscroll:gap-4",
-		children: [/* @__PURE__ */ jsxs("div", {
-			className: "relative aspect-[16/10] overflow-hidden rounded-3xl bg-page-line",
-			children: [
-				/* @__PURE__ */ jsx("img", {
-					src: project.image,
-					alt: project.imageAlt,
-					width: 1600,
-					height: 1008,
-					loading: "lazy",
-					className: "h-full w-full object-cover transition-transform duration-[1.2s] ease-out group-hover:scale-[1.04]"
-				}),
-				/* @__PURE__ */ jsxs("span", {
-					className: "absolute border border-page-line bg-page/70 left-4 top-4 rounded-full px-3 py-1.5 text-xs font-semibold tabular-nums",
-					children: [
-						String(index + 1).padStart(2, "0"),
-						" / ",
-						project.year
-					]
-				}),
-				project.url ? /* @__PURE__ */ jsx("a", {
-					href: project.url,
-					target: "_blank",
-					rel: "noreferrer",
-					"aria-label": `View ${project.name}`,
-					className: "absolute border border-page-line bg-page/70 right-4 top-4 flex h-11 w-11 items-center justify-center rounded-full transition-colors hover:bg-page-fg hover:text-page",
-					children: /* @__PURE__ */ jsx(ArrowUpRight, { className: "h-5 w-5" })
-				}) : /* @__PURE__ */ jsx("span", {
-					className: "absolute border border-page-line bg-page/70 right-4 top-4 rounded-full px-3 py-1.5 text-xs font-semibold",
-					title: "Case study link coming soon",
-					children: "View Project · soon"
-				})
-			]
-		}), /* @__PURE__ */ jsxs("div", {
-			className: "min-w-0",
-			children: [
-				/* @__PURE__ */ jsx("p", {
-					className: "eyebrow text-clay",
-					children: project.category
-				}),
-				/* @__PURE__ */ jsx("h3", {
-					className: "mt-2 text-[clamp(1.5rem,8cqi,3.25rem)] leading-[1.02] font-semibold",
-					children: project.name
-				}),
-				/* @__PURE__ */ jsx("p", {
-					className: "mt-3 max-w-md text-page-muted",
-					children: project.description
-				})
-			]
-		})]
+		className: "@container group flex w-[calc(100vw_-_4.5rem)] max-w-[44rem] shrink-0 snap-center flex-col gap-5 sm:w-[64vw] lg:w-[50vw] hscroll:max-w-[calc((100svh_-_17.5rem)_*_1.6)] hscroll:gap-4 max-lg:rounded-[2rem] max-lg:border max-lg:border-page-line max-lg:bg-[color-mix(in_oklab,var(--page-fg)_7%,var(--page-bg))] max-lg:p-5",
+		children: [
+			/* @__PURE__ */ jsxs("div", {
+				className: "flex items-start justify-between lg:hidden",
+				children: [/* @__PURE__ */ jsx("span", {
+					className: "font-display text-[clamp(3rem,16cqi,4.5rem)] leading-[0.85] font-semibold tabular-nums",
+					"aria-hidden": true,
+					children: number
+				}), /* @__PURE__ */ jsx("span", {
+					className: "text-xs font-semibold tabular-nums text-page-muted",
+					children: project.year
+				})]
+			}),
+			/* @__PURE__ */ jsxs("div", {
+				className: "relative aspect-[16/10] overflow-hidden rounded-3xl bg-page-line max-lg:order-last max-lg:rounded-2xl max-lg:hscroll:aspect-auto max-lg:hscroll:h-[80cqi] max-lg:hscroll:min-h-[7rem]",
+				children: [
+					/* @__PURE__ */ jsx("img", {
+						src: project.image,
+						alt: project.imageAlt,
+						width: 1600,
+						height: 1008,
+						loading: "lazy",
+						className: "h-full w-full object-cover transition-transform duration-[1.2s] ease-out group-hover:scale-[1.04]"
+					}),
+					/* @__PURE__ */ jsxs("span", {
+						className: "absolute border border-page-line bg-page/70 left-3 top-3 rounded-full px-2.5 py-1 text-[0.6875rem] font-semibold tabular-nums max-lg:hidden @sm:left-4 @sm:top-4 @sm:px-3 @sm:py-1.5 @sm:text-xs",
+						children: [
+							number,
+							" / ",
+							project.year
+						]
+					}),
+					project.url ? /* @__PURE__ */ jsx("a", {
+						href: project.url,
+						target: "_blank",
+						rel: "noreferrer",
+						"aria-label": `View ${project.name}`,
+						className: "absolute border border-page-line bg-page/70 right-3 top-3 flex h-9 w-9 items-center @sm:right-4 @sm:top-4 @sm:h-11 @sm:w-11 justify-center rounded-full transition-colors hover:bg-page-fg hover:text-page",
+						children: /* @__PURE__ */ jsx(ArrowUpRight, { className: "h-5 w-5" })
+					}) : /* @__PURE__ */ jsx("span", {
+						className: "absolute border border-page-line bg-page/70 right-3 top-3 rounded-full px-2.5 py-1 text-[0.6875rem] font-semibold @sm:right-4 @sm:top-4 @sm:px-3 @sm:py-1.5 @sm:text-xs",
+						title: "Case study link coming soon",
+						children: "View Project · soon"
+					})
+				]
+			}),
+			/* @__PURE__ */ jsxs("div", {
+				className: "min-w-0 max-lg:mt-auto",
+				children: [
+					/* @__PURE__ */ jsx("p", {
+						className: "eyebrow text-clay",
+						children: project.category
+					}),
+					/* @__PURE__ */ jsx("h3", {
+						className: "mt-2 text-[clamp(1.5rem,8cqi,3.25rem)] leading-[1.02] font-semibold",
+						children: project.name
+					}),
+					/* @__PURE__ */ jsx("p", {
+						className: "mt-2 max-w-md text-[0.9375rem] leading-relaxed text-page-muted @sm:mt-3 @sm:text-base",
+						children: project.description
+					})
+				]
+			})
+		]
 	});
 }
 // src/components/sections/ProjectsSection.tsx
 /**
-* Desktop + motion: section pins and vertical scroll drives the track's x.
-* Otherwise the track is a native, touch-friendly horizontal scroller with snap.
+* Motion allowed (any width, 450px+ tall): cards pin and vertical scroll drives the track's x.
+* Reduced motion / landscape phones: the track is a native, touch-friendly swipe row with snap.
 */
 function ProjectsSection() {
 	const ref = useGsapScope((scope, mm, gsap) => {
 		mm.add(animationConfig.motion, () => revealChildren(scope));
-		mm.add(animationConfig.desktop, () => {
-			const pin = scope.querySelector("[data-pin]");
+		mm.add({
+			hscroll: animationConfig.hscroll,
+			lg: "(min-width: 1024px)"
+		}, (ctx) => {
+			const { hscroll, lg } = ctx.conditions;
+			if (!hscroll) return;
+			const pin = scope.querySelector(lg ? "[data-pin]" : "[data-pin-outer]");
 			const track = scope.querySelector("[data-track]");
 			const progress = scope.querySelector("[data-progress]");
 			const distance = () => Math.max(0, track.scrollWidth - document.documentElement.clientWidth);
+			const cards = gsap.utils.toArray("article", track);
+			const snapToCard = (v, st) => {
+				const d = distance() || 1;
+				const pts = cards.map((c) => Math.min(1, (c.offsetLeft - cards[0].offsetLeft) / d));
+				const nearest = gsap.utils.snap(pts, v);
+				if (Math.abs(v - nearest) < .15 / (pts.length - 1)) return nearest;
+				return getGsap().ScrollTrigger.snapDirectional(pts)(v, st?.direction ?? 1);
+			};
 			gsap.to(track, {
 				x: () => -distance(),
 				ease: "none",
@@ -672,81 +737,80 @@ function ProjectsSection() {
 					end: () => `+=${distance()}`,
 					pin: true,
 					scrub: .5,
+					snap: lg ? void 0 : {
+						snapTo: snapToCard,
+						duration: {
+							min: .2,
+							max: .5
+						},
+						delay: .08,
+						ease: "power1.inOut"
+					},
 					invalidateOnRefresh: true,
 					onUpdate: (self) => progress && gsap.set(progress, { scaleX: self.progress })
 				}
 			});
 		});
 	});
-	return /* @__PURE__ */ jsxs("section", {
+	return /* @__PURE__ */ jsx("section", {
 		id: "work",
 		ref,
 		"data-theme": sectionThemes.projects,
 		"aria-labelledby": "work-title",
 		className: "relative py-20 hscroll:pb-0",
-		children: [/* @__PURE__ */ jsxs(Container, {
-			className: "flex items-end justify-between gap-6 pb-10",
-			children: [/* @__PURE__ */ jsx(SectionHeading, {
-				index: "01",
-				eyebrow: "Selected work",
-				id: "work-title",
-				title: /* @__PURE__ */ jsx(Fragment, { children: "Projects" })
-			}), /* @__PURE__ */ jsx("p", {
-				"data-reveal": true,
-				className: "hidden max-w-xs text-sm text-page-muted md:block",
-				children: "A selection of recent builds. Scroll to browse — full case studies coming soon."
-			})]
-		}), /* @__PURE__ */ jsxs("div", {
-			"data-pin": true,
-			className: "flex flex-col justify-center-safe hscroll:h-svh hscroll:overflow-hidden hscroll:pt-[5.5rem]",
-			children: [/* @__PURE__ */ jsx("div", {
-				"data-track": true,
-				className: "flex snap-x snap-mandatory gap-6 overflow-x-auto px-5 pb-6 sm:px-8 lg:px-12 hscroll:w-max hscroll:snap-none hscroll:gap-10 hscroll:overflow-visible hscroll:pb-4 hscroll:will-change-transform [scrollbar-width:none]",
-				tabIndex: 0,
-				"aria-label": "Project list",
-				children: projects.map((p, i) => /* @__PURE__ */ jsx(ProjectCard, {
-					project: p,
-					index: i
-				}, p.slug))
-			}), /* @__PURE__ */ jsx(Container, {
-				className: "hidden hscroll:block",
-				children: /* @__PURE__ */ jsx("div", {
-					className: "h-px w-full bg-page-line",
+		children: /* @__PURE__ */ jsxs("div", {
+			"data-pin-outer": true,
+			className: "max-lg:hscroll:flex max-lg:hscroll:h-svh max-lg:hscroll:flex-col max-lg:hscroll:justify-center max-lg:hscroll:pb-6 max-lg:hscroll:overflow-hidden max-lg:hscroll:pt-[4.75rem] sm:max-lg:hscroll:pt-[5.5rem]",
+			children: [/* @__PURE__ */ jsxs(Container, {
+				className: "flex items-end justify-between gap-6 pb-10 max-lg:hscroll:pb-5",
+				children: [/* @__PURE__ */ jsx(SectionHeading, {
+					index: "01",
+					eyebrow: "Selected work",
+					id: "work-title",
+					title: /* @__PURE__ */ jsx(Fragment, { children: "Projects" })
+				}), /* @__PURE__ */ jsx("p", {
+					"data-reveal": true,
+					className: "hidden max-w-xs text-sm text-page-muted md:block",
+					children: "A selection of recent builds. Scroll to browse — full case studies coming soon."
+				})]
+			}), /* @__PURE__ */ jsxs("div", {
+				"data-pin": true,
+				className: "flex flex-col max-lg:hscroll:min-h-0 lg:justify-center-safe lg:hscroll:h-svh lg:hscroll:overflow-hidden lg:hscroll:pt-[5.5rem]",
+				children: [/* @__PURE__ */ jsx("div", {
+					"data-track": true,
+					className: "flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-6 max-lg:hscroll:min-h-0 sm:gap-6 sm:px-8 lg:gap-10 lg:px-12 hscroll:w-max hscroll:snap-none hscroll:overflow-visible hscroll:pb-4 hscroll:will-change-transform [scrollbar-width:none]",
+					tabIndex: 0,
+					"aria-label": "Project list",
+					children: projects.map((p, i) => /* @__PURE__ */ jsx(ProjectCard, {
+						project: p,
+						index: i
+					}, p.slug))
+				}), /* @__PURE__ */ jsx(Container, {
+					className: "hidden hscroll:block",
 					children: /* @__PURE__ */ jsx("div", {
-						"data-progress": true,
-						className: "h-px origin-left scale-x-0 bg-page-fg"
+						className: "h-px w-full bg-page-line",
+						children: /* @__PURE__ */ jsx("div", {
+							"data-progress": true,
+							className: "h-px origin-left scale-x-0 bg-page-fg"
+						})
 					})
-				})
+				})]
 			})]
-		})]
+		})
 	});
 }
 // src/components/sections/ServicesSection.tsx
 /**
-* Stacked panels: on `stack` screens each panel is CSS-sticky, settling 1rem
+* Stacked panels: each panel is CSS-sticky (all screen sizes), settling a little
 * lower than the previous one, so the next panel slides up over it. GSAP only
-* adds a slight shrink to the covered panel. Smaller screens get plain panels.
+* adds a slight shrink to the covered panel. `stack` screens get fixed-height side-by-side panels.
 */
 function ServicesSection() {
 	const ref = useGsapScope((scope, mm, gsap) => {
 		mm.add(animationConfig.motion, () => revealChildren(scope));
-		mm.add(`${animationConfig.stack} and ${animationConfig.motion}`, () => {
-			const panels = gsap.utils.toArray("[data-panel]", scope);
-			panels.slice(0, -1).forEach((panel, i) => {
-				const next = panels[i + 1];
-				gsap.to(panel, {
-					scale: .95,
-					ease: "none",
-					scrollTrigger: {
-						trigger: next,
-						scrub: true,
-						invalidateOnRefresh: true,
-						start: "top bottom",
-						end: () => `top ${parseFloat(getComputedStyle(next).top)}px`
-					}
-				});
-			});
-		});
+		const panels = gsap.utils.toArray("[data-panel]", scope);
+		mm.add("(min-width: 0px)", () => fitStickyPanels(panels));
+		mm.add(animationConfig.motion, () => shrinkCoveredPanels(panels));
 	});
 	return /* @__PURE__ */ jsx("section", {
 		id: "services",
@@ -776,11 +840,11 @@ function ServicesSection() {
 						"--i": i,
 						"--n": services.length
 					},
-					className: "origin-top rounded-[2rem] bg-page p-6 text-page-fg shadow-[0_-16px_40px_-24px_rgb(0_0_0/0.45)] sm:p-8 lg:p-10 stack:sticky stack:top-[calc(5.75rem_+_var(--i)_*_1rem)] stack:h-[calc(100svh_-_7.25rem_-_(var(--n)_-_1)_*_1rem)]",
+					className: "origin-top rounded-[2rem] bg-page p-6 text-page-fg shadow-[0_-16px_40px_-24px_rgb(0_0_0/0.45)] sm:p-8 lg:p-10 sticky top-[calc(4.75rem_+_var(--i)_*_0.75rem)] sm:top-[calc(5.75rem_+_var(--i)_*_1rem)] stack:h-[calc(100svh_-_7.25rem_-_(var(--n)_-_1)_*_1rem)]",
 					children: /* @__PURE__ */ jsxs("div", {
-						className: "grid gap-8 lg:grid-cols-12 stack:h-full",
+						className: "grid gap-4 sm:gap-8 lg:grid-cols-12 stack:h-full",
 						children: [/* @__PURE__ */ jsxs("div", {
-							className: "flex flex-col justify-between gap-6 lg:col-span-5",
+							className: "flex flex-col justify-between gap-4 sm:gap-6 lg:col-span-5",
 							children: [/* @__PURE__ */ jsx("span", {
 								className: "font-display text-[clamp(3.5rem,min(9vw,14svh),9rem)] leading-[0.85] font-semibold tabular-nums",
 								"aria-hidden": true,
@@ -789,11 +853,11 @@ function ServicesSection() {
 								className: "text-[clamp(1.9rem,min(3.6vw,6.5svh),4rem)] leading-[1] font-semibold",
 								children: s.title
 							}), /* @__PURE__ */ jsx("p", {
-								className: "mt-4 max-w-md text-page-muted lg:text-lg",
+								className: "mt-3 max-w-md text-page-muted sm:mt-4 lg:text-lg",
 								children: s.description
 							})] })]
 						}), project && /* @__PURE__ */ jsxs("div", {
-							className: "relative aspect-[16/10] min-h-0 overflow-hidden rounded-2xl border border-page-line lg:col-span-7 stack:aspect-auto",
+							className: "relative h-[28svh] min-h-0 overflow-hidden sm:h-[36svh] stack:h-auto rounded-2xl border border-page-line lg:col-span-7 stack:aspect-auto",
 							children: [/* @__PURE__ */ jsx("img", {
 								src: project.image,
 								alt: project.imageAlt,

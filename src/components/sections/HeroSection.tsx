@@ -31,7 +31,7 @@ export function HeroSection() {
       const statementEl = scope.querySelector("[data-statement]");
       gsap.fromTo(scope.querySelectorAll("[data-word]"), { opacity: 0.18 }, {
         opacity: 1, ease: "none", stagger: 0.1,
-        scrollTrigger: { trigger: statementEl, start: "top 85%", end: "bottom 50%", scrub: 0.4 },
+        scrollTrigger: { trigger: statementEl, start: "clamp(top 85%)", end: "clamp(bottom 50%)", scrub: 0.4 }, // clamp: starts at 0 even when on screen at load (mobile)
       });
     });
   });
