@@ -208,3 +208,27 @@
     opacity: 0 !important;
   }
 }
+
+/* Floating navbar glass surface */
+.navbar-glass {
+  background-color: rgba(255, 255, 255, 0.6);
+  transition: background-color 0.3s ease;
+}
+.navbar-glass-open {
+  background-color: rgba(255, 255, 255, 0.75);
+}
+@supports not (backdrop-filter: blur(1px)) {
+  .navbar-glass {
+    background-color: rgba(255, 255, 255, 0.9);
+  }
+}
+
+/* Showcase carousel progress dot fill — a real animation (not a transition) so it can be paused and resumed exactly where it left off. */
+@keyframes carousel-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}

@@ -61,7 +61,7 @@ export function Hero() {
   return (
     <section
       aria-label="Hero Section"
-      className="relative flex w-full flex-col justify-center overflow-hidden px-4 py-16 sm:px-6 md:px-8 lg:min-h-[calc(100svh-4rem)]"
+      className="relative flex min-h-[100svh] w-full flex-col justify-center overflow-hidden px-4 pt-24 pb-16 sm:px-6 md:px-8"
     >
       {/* Soft contrast fade behind the text column only — not a card. */}
       <div

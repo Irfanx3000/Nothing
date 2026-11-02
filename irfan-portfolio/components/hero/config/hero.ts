@@ -1,5 +1,4 @@
 import { Code2, Layers, Sparkles, Terminal } from "lucide-react";
-import type { TechIconKey } from "@/components/icons/tech-icons";
 
 export interface ClientLogo {
   name: string;
@@ -17,11 +16,17 @@ export const clients: ClientLogo[] = [
   { name: "Springwala", src: "/logos/springwala.svg", aspect: 282 / 78 },
 ];
 
-export const NAV_LINKS = [
-  { label: "Work", href: "#work" },
-  { label: "Services", href: "#services" },
-  { label: "About", href: "#about" },
-  { label: "Contact", href: "#contact" },
+export interface NavLink {
+  label: string;
+  href: string;
+  id: string;
+}
+
+export const NAV_LINKS: NavLink[] = [
+  { label: "Work", href: "#work", id: "work" },
+  { label: "Services", href: "#services", id: "services" },
+  { label: "About", href: "#about", id: "about" },
+  { label: "Contact", href: "#contact", id: "contact" },
 ];
 
 // TODO: replace with real profile URLs before shipping.
@@ -30,6 +35,73 @@ export const SOCIAL_LINKS = {
   linkedin: "#",
   email: "#",
 };
+
+export type TechId =
+  | "react"
+  | "nodejs"
+  | "express"
+  | "mongodb"
+  | "supabase"
+  | "html"
+  | "css"
+  | "javascript";
+
+export interface ShowcaseTech {
+  id: TechId;
+  label: string;
+}
+
+export interface ShowcaseProject {
+  id: string;
+  name: string;
+  domain: string; // text shown in the URL pill
+  href?: string; // live site; verify before shipping
+  image?: string; // e.g. "/projects/crewapply.webp"; leave undefined until added
+  imageAlt: string;
+  tech: ShowcaseTech[]; // exactly 4 items
+}
+
+export const SHOWCASE_PROJECTS: ShowcaseProject[] = [
+  {
+    id: "crewapply",
+    name: "Crewapply",
+    domain: "crewapply.com",
+    href: "https://crewapply.com",
+    imageAlt: "Crewapply product screenshot",
+    tech: [
+      { id: "react", label: "React Native" },
+      { id: "nodejs", label: "Node.js" },
+      { id: "express", label: "Express" },
+      { id: "mongodb", label: "MongoDB" },
+    ],
+  },
+  {
+    id: "springwala-web",
+    name: "Springwala",
+    domain: "springwala.in",
+    href: "https://springwala.in",
+    imageAlt: "Springwala product screenshot",
+    tech: [
+      { id: "html", label: "HTML" },
+      { id: "css", label: "CSS" },
+      { id: "javascript", label: "JavaScript" },
+      { id: "mongodb", label: "MongoDB" },
+    ],
+  },
+  {
+    id: "unstop-web",
+    name: "Unstop Web",
+    domain: "igniters.aiktc.ac.in",
+    href: "https://igniters.aiktc.ac.in",
+    imageAlt: "Unstop Web product screenshot",
+    tech: [
+      { id: "react", label: "React" },
+      { id: "nodejs", label: "Node.js" },
+      { id: "express", label: "Express" },
+      { id: "supabase", label: "Supabase" },
+    ],
+  },
+];
 
 export const heroConfig = {
   name: "Irfan Shaikh",
@@ -60,18 +132,9 @@ export const heroConfig = {
   },
   navCta: { label: "Let's talk", href: "#contact" },
   trustedByLabel: "Trusted by",
-  // Placeholders — see deliverables notes for what to replace before shipping.
   showcase: {
-    image: "/projects/featured-placeholder.svg",
-    imageAlt: "Placeholder preview — replace with a real screenshot of the featured project",
-    domain: "springwala.com",
-    href: undefined as string | undefined,
-    chips: [
-      { label: "Next.js", icon: "nextjs" as TechIconKey },
-      { label: "TypeScript", icon: "typescript" as TechIconKey },
-      { label: "AI agents", icon: "ai" as TechIconKey },
-    ],
-    stat: { value: "98", label: "Lighthouse score" },
+    autoplayMs: 5000,
+    projects: SHOWCASE_PROJECTS,
   },
 };
 
